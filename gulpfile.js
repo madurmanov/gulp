@@ -7,7 +7,6 @@ var gulp          = require('gulp'),
     concat        = require('gulp-concat'),
     connect       = require('gulp-connect'),
     sourcemaps    = require('gulp-sourcemaps'),
-    inlinecss     = require('gulp-inline-css'),
     postcss       = require('gulp-postcss'),
     rimraf        = require('gulp-rimraf'),
     autoprefixer  = require('autoprefixer'),
@@ -15,24 +14,42 @@ var gulp          = require('gulp'),
     simplevars    = require('postcss-simple-vars'),
     mixins        = require('postcss-mixins');
 
-var path = {}
+var path = {};
 
-path.core = './core/';
-path.assets = path.core + 'assets/';
+path.blocks     = 'blocks/';
+path.css        = 'css/';
+path.fonts      = 'fonts/'
+path.images     = 'images/';
+path.js         = 'js/';
+path.lib        = 'lib/'
+path.sprites    = 'sprites/';
+path.templates  = 'templates/';
 
-path.blocks    = 'blocks/';
-path.css       = 'css/';
-path.images    = 'images/';
-path.js        = 'js/';
-path.sprite    = 'sprite/';
-path.templates = 'templates/';
+path.source           = {};
+path.source.root      = './source/';
+path.source.blocks    = path.source.root + path.blocks;
+path.source.css       = path.source.root + path.css;
+path.source.fonts     = path.source.root + path.fonts;
+path.source.images    = path.source.root + path.images;
+path.source.js        = path.source.root + path.js;
+path.source.lib       = path.source.root + path.lib;
+path.source.sprites   = path.source.root + path.sprites;
+path.source.templates = path.source.root + path.templates;
 
-var pcssVariables = require(path.assets + path.css + 'variables');
+path.build        = {};
+path.build.root   = './build/';
+path.build.css    = path.build.root + path.css;
+path.build.fonts  = path.build.root + path.fonts;
+path.build.images = path.build.root + path.images;
+path.build.js     = path.build.root + path.js;
+path.build.lib    = path.build.root + path.lib;
+
+var pcssVariables = require(path.source.css + 'variables');
 
 var cfg = {
   spritesmith: {
     imgName: 'sprite.png',
-    imgPath: '/' + path.images + 'sprite.png',
+    imgPath: '/' + path.build.images + 'sprite.png',
     cssName: 'sprite.css',
     padding: 10,
     imgOpts: {
@@ -45,13 +62,13 @@ var cfg = {
   },
   connect: {
     port: 5000,
-    root: path.core,
+    root: path.build.root,
     livereload: true
   },
   postcss: [
     mixins,
     nested,
-    simplevars: ({
+    simplevars({
       variables: pcssVariables
     }),
     autoprefixer({
@@ -61,51 +78,54 @@ var cfg = {
 };
 
 gulp.task('clean', function() {
-  gulp.src([
-    path.assets + path.images + cfg.spritesmith.imgName,
-    path.assets + path.css + cfg.spritesmith.cssName,
-    path.core + path.images,
-    path.core + path.css,
-    path.core + path.js,
-    path.core + path.templates
-  ], {read: false})
-    .pipe(rimraf({force: true}))
+  gulp.src(path.build.root, {read: false})
+    .pipe(rimraf({force: true}));
 });
 
-gulp.task('sprite', function() {
+gulp.task('fonts', function() {
+  gulp.src(path.source.fonts + '*')
+    .pipe(gulp.dest(path.build.fonts));
+});
+
+gulp.task('lib', function() {
+  gulp.src(path.source.lib + '**/*')
+    .pipe(gulp.dest(path.build.lib));
+});
+
+gulp.task('sprites', function() {
   var sprite =
-    gulp.src(path.assets + path.sprite + '*.png')
+    gulp.src(path.source.sprites + '*.png')
       .pipe(spritesmith(cfg.spritesmith))
   sprite.img
         .pipe(imagemin())
-        .pipe(gulp.dest(path.core + path.images))
+        .pipe(gulp.dest(path.build.images))
   sprite.css
         .pipe(sourcemaps.init())
         .pipe(csso())
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(path.core + path.css))
+        .pipe(gulp.dest(path.build.css))
         .pipe(connect.reload())
 });
 
 gulp.task('images', function() {
-  gulp.src(path.assets + path.images + '*')
+  gulp.src(path.source.images + '*')
     .pipe(imagemin())
-    .pipe(gulp.dest(path.core + path.images))
+    .pipe(gulp.dest(path.build.images))
     .pipe(connect.reload())
 });
 
 gulp.task('css', function() {
   var files = [
-    path.assets + path.css + '*.pcss',
-    path.assets + path.templates + path.blocks + '**/*.pcss',
-    path.assets + path.css + '*.css'
+    path.source.css + '*.pcss',
+    path.source.blocks + '**/*.pcss',
+    path.source.css + '*.css'
   ];
   gulp.src(files)
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.core + path.css))
+    .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload())
   gulp.src(files)
     .pipe(sourcemaps.init())
@@ -113,78 +133,70 @@ gulp.task('css', function() {
     .pipe(concat('app.min.css'))
     .pipe(csso())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.core + path.css))
+    .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload())
 });
 
 gulp.task('js', function() {
   var files = [
-    path.assets + path.js + '*.js',
-    path.assets + path.templates + path.blocks + '**/*.js'
+    path.source.js + '*.js',
+    path.source.blocks + '**/*.js'
   ];
   gulp.src(files)
     .pipe(sourcemaps.init())
     .pipe(concat('app.js'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.core + path.js))
+    .pipe(gulp.dest(path.build.js))
     .pipe(connect.reload())
   gulp.src(files)
     .pipe(sourcemaps.init())
     .pipe(concat('app.min.js'))
     .pipe(uglify())
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.core + path.js))
+    .pipe(gulp.dest(path.build.js))
     .pipe(connect.reload())
 });
 
 gulp.task('templates', function() {
-  gulp.src(path.assets + path.templates + '*.jade')
+  gulp.src(path.source.templates + '*.jade')
     .pipe(jade(cfg.jade))
-    .pipe(gulp.dest(path.core + path.templates))
-    .pipe(connect.reload())
-});
-
-gulp.task('mail', function() {
-  gulp.src(path.assets + path.templates + '*.mail.jade')
-    .pipe(inlinecss())
-    .pipe(gulp.dest(path.core + path.templates))
+    .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload())
 });
 
 gulp.task('build', function() {
-  gulp.start('sprite', 'images', 'css', 'js', 'templates');
-});
-
-gulp.task('watch', function() {
-  gulp.watch(path.assets + path.sprite + '*', function() {
-    gulp.start('sprite');
-  });
-  gulp.watch(path.assets + path.images + '*', function() {
-    gulp.start('images');
-  });
-  gulp.watch([
-    path.assets + path.css + '*.pcss',
-    path.assets + path.blocks + '**/*.pcss'
-  ], function() {
-    gulp.start('css');
-  });
-  gulp.watch([
-    path.assets + path.js + '*.js',
-    path.assets + path.blocks + '**/*.js'
-  ], function() {
-    gulp.start('js');
-  });
-  gulp.watch([
-    path.assets + path.templates + '*.jade',
-    path.assets + path.blocks + '**/*.jade'
-  ], function() {
-    gulp.start('templates');
-  });
+  gulp.start('fonts', 'lib', 'sprites', 'images', 'css', 'js', 'templates');
 });
 
 gulp.task('connect', function() {
   connect.server(cfg.connect);
 });
 
-gulp.task('start', ['connect', 'watch']);
-gulp.task('default', ['build']);
+gulp.task('watch', function() {
+  gulp.watch(path.source.sprites + '*', function() {
+    gulp.start('sprites');
+  });
+  gulp.watch(path.source.images + '*', function() {
+    gulp.start('images');
+  });
+  gulp.watch([
+    path.source.css + '*.pcss',
+    path.source.blocks + '**/*.pcss'
+  ], function() {
+    gulp.start('css');
+  });
+  gulp.watch([
+    path.source.js + '*.js',
+    path.source.blocks + '**/*.js'
+  ], function() {
+    gulp.start('js');
+  });
+  gulp.watch([
+    path.source.blocks + '**/*.jade',
+    path.source.templates + '*.jade'
+  ], function() {
+    gulp.start('templates');
+  });
+});
+
+gulp.task('default', ['build', 'connect', 'watch']);
