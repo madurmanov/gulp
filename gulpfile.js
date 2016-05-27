@@ -113,19 +113,18 @@ gulp.task('images', function() {
 });
 
 gulp.task('css', function() {
-  var files = [
+  var files = gulp.src([
     path.source.css + '*.pcss',
     path.source.blocks + '**/*.pcss',
     path.source.css + '*.css'
-  ];
-  gulp.src(files)
+  ]);
+  files
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.build.css))
-    .pipe(connect.reload());
-  gulp.src(files)
+    .pipe(gulp.dest(path.build.css));
+  files
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
     .pipe(concat('app.min.css'))
@@ -136,17 +135,16 @@ gulp.task('css', function() {
 });
 
 gulp.task('js', function() {
-  var files = [
+  var files = gulp.src([
     path.source.js + '*.js',
     path.source.blocks + '**/*.js'
-  ];
-  gulp.src(files)
+  ]);
+  files
     .pipe(sourcemaps.init())
     .pipe(concat('app.js'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.build.js))
-    .pipe(connect.reload());
-  gulp.src(files)
+    .pipe(gulp.dest(path.build.js));
+  files
     .pipe(sourcemaps.init())
     .pipe(concat('app.min.js'))
     .pipe(uglify())
