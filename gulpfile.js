@@ -44,8 +44,6 @@ path.build.images = path.build.root + path.images;
 path.build.js     = path.build.root + path.js;
 path.build.lib    = path.build.root + path.lib;
 
-var pcssVariables = require(path.source.css + 'variables');
-
 var cfg = {
   spritesmith: {
     imgName: 'sprite.png',
@@ -69,7 +67,7 @@ var cfg = {
     mixins,
     nested,
     simplevars({
-      variables: pcssVariables
+      variables: require(path.source.css + 'variables')
     }),
     autoprefixer({
       browsers: ['> 1%', 'last 4 versions', 'ie >= 9']
