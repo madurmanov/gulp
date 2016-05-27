@@ -95,23 +95,23 @@ gulp.task('lib', function() {
 gulp.task('sprites', function() {
   var sprite =
     gulp.src(path.source.sprites + '*.png')
-      .pipe(spritesmith(cfg.spritesmith))
+      .pipe(spritesmith(cfg.spritesmith));
   sprite.img
-        .pipe(imagemin())
-        .pipe(gulp.dest(path.build.images))
+    .pipe(imagemin())
+    .pipe(gulp.dest(path.build.images));
   sprite.css
-        .pipe(sourcemaps.init())
-        .pipe(csso())
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(path.build.css))
-        .pipe(connect.reload())
+    .pipe(sourcemaps.init())
+    .pipe(csso())
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(path.build.css))
+    .pipe(connect.reload());
 });
 
 gulp.task('images', function() {
   gulp.src(path.source.images + '*')
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
 });
 
 gulp.task('css', function() {
@@ -126,7 +126,7 @@ gulp.task('css', function() {
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
   gulp.src(files)
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
@@ -134,7 +134,7 @@ gulp.task('css', function() {
     .pipe(csso())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
 });
 
 gulp.task('js', function() {
@@ -147,25 +147,33 @@ gulp.task('js', function() {
     .pipe(concat('app.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
   gulp.src(files)
     .pipe(sourcemaps.init())
     .pipe(concat('app.min.js'))
     .pipe(uglify())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
 });
 
 gulp.task('templates', function() {
   gulp.src(path.source.templates + '*.jade')
     .pipe(jade(cfg.jade))
     .pipe(gulp.dest(path.build.root))
-    .pipe(connect.reload())
+    .pipe(connect.reload());
 });
 
 gulp.task('build', function() {
-  gulp.start('fonts', 'lib', 'sprites', 'images', 'css', 'js', 'templates');
+  gulp.start(
+    'fonts',
+    'lib',
+    'sprites',
+    'images',
+    'css',
+    'js',
+    'templates'
+  );
 });
 
 gulp.task('connect', function() {
