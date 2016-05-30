@@ -66,7 +66,9 @@ var cfg = {
     livereload: true
   },
   postcss: [
-    mixins,
+    mixins({
+      mixinsDir: path.source.css + 'mixins'
+    }),
     nested,
     simplevars({
       variables: require(path.source.css + 'variables')
