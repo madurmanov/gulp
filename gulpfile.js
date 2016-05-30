@@ -1,4 +1,5 @@
 var gulp          = require('gulp'),
+    watch         = require('gulp-watch'),
     imagemin      = require('gulp-imagemin'),
     spritesmith   = require('gulp.spritesmith'),
     csso          = require('gulp-csso'),
@@ -176,25 +177,25 @@ gulp.task('connect', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(path.source.sprites + '*', function() {
+  watch(path.source.sprites + '*', function() {
     gulp.start('sprite');
   });
-  gulp.watch(path.source.images + '*', function() {
+  watch(path.source.images + '*', function() {
     gulp.start('images');
   });
-  gulp.watch([
+  watch([
     path.source.css + '*.pcss',
     path.source.blocks + '**/*.pcss'
   ], function() {
     gulp.start('css');
   });
-  gulp.watch([
+  watch([
     path.source.js + '*.js',
     path.source.blocks + '**/*.js'
   ], function() {
     gulp.start('js');
   });
-  gulp.watch([
+  watch([
     path.source.blocks + '**/*.jade',
     path.source.templates + '*.jade'
   ], function() {
