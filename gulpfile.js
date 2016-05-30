@@ -47,8 +47,9 @@ path.build.lib    = path.build.root + path.lib;
 var cfg = {
   spritesmith: {
     imgName: 'sprite.png',
-    imgPath: '/' + path.build.images + 'sprite.png',
-    cssName: 'sprite.css',
+    imgPath: path.build.images + 'sprite.png',
+    cssName: 'sprite.min.css',
+    cssTemplate: path.source.css + 'sprite.template',
     padding: 10,
     imgOpts: {
       format: 'png',
@@ -90,7 +91,7 @@ gulp.task('lib', function() {
     .pipe(gulp.dest(path.build.lib));
 });
 
-gulp.task('sprites', function() {
+gulp.task('sprite', function() {
   var sprite =
     gulp.src(path.source.sprites + '*.png')
       .pipe(spritesmith(cfg.spritesmith));
@@ -98,9 +99,7 @@ gulp.task('sprites', function() {
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images));
   sprite.css
-    .pipe(sourcemaps.init())
     .pipe(csso())
-    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload());
 });
@@ -164,7 +163,7 @@ gulp.task('build', function() {
   gulp.start(
     'fonts',
     'lib',
-    'sprites',
+    'sprite',
     'images',
     'css',
     'js',
@@ -178,7 +177,7 @@ gulp.task('connect', function() {
 
 gulp.task('watch', function() {
   gulp.watch(path.source.sprites + '*', function() {
-    gulp.start('sprites');
+    gulp.start('sprite');
   });
   gulp.watch(path.source.images + '*', function() {
     gulp.start('images');
