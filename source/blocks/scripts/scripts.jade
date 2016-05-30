@@ -1,2 +1,5 @@
-script(src='lib/jquery.js')
-script(src='js/app.min.js')
+script(type='text/javascript', src='lib/jquery.js')
+if scripts
+  each src in scripts
+    script(type='text/javascript', src='#{src}')
+script(type='text/javascript', src='js/app.min.js')

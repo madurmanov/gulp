@@ -1,5 +1,8 @@
 meta(charset='utf-8')
 title= title
-link(rel='stylesheet', href='lib/reset.css')
-link(rel='stylesheet', href='css/sprite.min.css')
-link(rel='stylesheet', href='css/app.min.css')
+link(rel='stylesheet', type='text/css', href='lib/reset.css')
+link(rel='stylesheet', type='text/css', href='css/sprite.min.css')
+if css
+  each href in css
+    link(rel='stylesheet', type='text/css', href='#{href}')
+link(rel='stylesheet', type='text/css', href='css/app.min.css')
