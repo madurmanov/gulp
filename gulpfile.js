@@ -11,6 +11,8 @@ var gulp          = require('gulp'),
     postcss       = require('gulp-postcss'),
     rimraf        = require('gulp-rimraf'),
     htmlmin       = require('gulp-htmlmin'),
+    selectors     = require('gulp-selectors'),
+    deletelines   = require('gulp-delete-lines'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -167,9 +169,25 @@ gulp.task('templates', function() {
 });
 
 gulp.task('htmlmin', function() {
-  gulp.src(path.build.root + '*.html')
+  return gulp.src(path.build.root + '*.html')
     .pipe(htmlmin(cfg.htmlmin))
     .pipe(gulp.dest(path.build.root));
+});
+
+gulp.task('selectorsmin', ['htmlmin'], function() {
+  gulp.src(path.build.root + '*.html')
+    .pipe(selectors.run())
+    .pipe(gulp.dest(path.build.root));
+  gulp.src(path.build.css + '*.css')
+    .pipe(selectors.run())
+    .pipe(deletelines({
+      'filters': [
+        /\/\*#\ssourceMap/i
+      ]
+    }))
+    .pipe(gulp.dest(path.build.css));
+  gulp.src(path.build.css + '*.map', {read: false})
+    .pipe(rimraf());
 });
 
 gulp.task('build', function() {
@@ -181,6 +199,13 @@ gulp.task('build', function() {
     'css',
     'js',
     'templates'
+  );
+});
+
+gulp.task('buildmin', function() {
+  gulp.start(
+    'htmlmin',
+    'selectorsmin'
   );
 });
 
