@@ -10,6 +10,7 @@ var gulp          = require('gulp'),
     sourcemaps    = require('gulp-sourcemaps'),
     postcss       = require('gulp-postcss'),
     rimraf        = require('gulp-rimraf'),
+    htmlmin       = require('gulp-htmlmin'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -59,6 +60,9 @@ var cfg = {
   },
   jade: {
     pretty: true
+  },
+  htmlmin: {
+    collapseWhitespace: true
   },
   connect: {
     port: 5000,
@@ -160,6 +164,12 @@ gulp.task('templates', function() {
     .pipe(jade(cfg.jade))
     .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload());
+});
+
+gulp.task('htmlmin', function() {
+  gulp.src(path.build.root + '*.html')
+    .pipe(htmlmin(cfg.htmlmin))
+    .pipe(gulp.dest(path.build.root));
 });
 
 gulp.task('build', function() {
