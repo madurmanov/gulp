@@ -132,7 +132,7 @@ gulp.task('css', function() {
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css));
-  files
+  return files
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
     .pipe(concat('app.min.css'))
@@ -174,7 +174,7 @@ gulp.task('htmlmin', ['templates'], function() {
     .pipe(gulp.dest(path.build.root));
 });
 
-gulp.task('selectorsmin', ['htmlmin'], function() {
+gulp.task('selectorsmin', ['templates', 'css'], function() {
   gulp.src(path.build.root + '*.html')
     .pipe(selectors.run())
     .pipe(gulp.dest(path.build.root));
