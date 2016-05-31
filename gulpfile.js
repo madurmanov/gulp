@@ -162,13 +162,13 @@ gulp.task('js', function() {
 });
 
 gulp.task('templates', function() {
-  gulp.src(path.source.templates + '*.jade')
+  return gulp.src(path.source.templates + '*.jade')
     .pipe(jade(cfg.jade))
     .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload());
 });
 
-gulp.task('htmlmin', function() {
+gulp.task('htmlmin', ['templates'], function() {
   return gulp.src(path.build.root + '*.html')
     .pipe(htmlmin(cfg.htmlmin))
     .pipe(gulp.dest(path.build.root));
@@ -188,25 +188,6 @@ gulp.task('selectorsmin', ['htmlmin'], function() {
     .pipe(gulp.dest(path.build.css));
   gulp.src(path.build.css + '*.map', {read: false})
     .pipe(rimraf());
-});
-
-gulp.task('build', function() {
-  gulp.start(
-    'fonts',
-    'lib',
-    'sprite',
-    'images',
-    'css',
-    'js',
-    'templates'
-  );
-});
-
-gulp.task('buildmin', function() {
-  gulp.start(
-    'htmlmin',
-    'selectorsmin'
-  );
 });
 
 gulp.task('connect', function() {
@@ -240,4 +221,24 @@ gulp.task('watch', function() {
   });
 });
 
-gulp.task('default', ['build', 'connect', 'watch']);
+gulp.task('build', [
+  'fonts',
+  'lib',
+  'sprite',
+  'images',
+  'css',
+  'js',
+  'templates'
+]);
+
+gulp.task('build:min', [
+  'build',
+  'htmlmin',
+  'selectorsmin'
+]);
+
+gulp.task('default', [
+  'build',
+  'connect',
+  'watch'
+]);
