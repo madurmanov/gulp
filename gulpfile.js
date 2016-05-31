@@ -190,7 +190,7 @@ gulp.task('selectorsmin', ['templates', 'css'], function() {
     .pipe(rimraf());
 });
 
-gulp.task('connect', function() {
+gulp.task('server', function() {
   connect.server(cfg.connect);
 });
 
@@ -239,6 +239,6 @@ gulp.task('build:min', [
 
 gulp.task('default', [
   'build',
-  'connect',
+  'server',
   'watch'
 ]);
