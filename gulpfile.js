@@ -86,42 +86,42 @@ var cfg = {
   ]
 };
 
-gulp.task('clean', function() {
-  return gulp.src(path.build.root, {read: false})
+function clean() {
+  gulp.src(path.build.root, {read: false})
     .pipe(rimraf({force: true}));
-});
+}
 
-gulp.task('fonts', ['clean'], function() {
-  return gulp.src(path.source.fonts + '*')
+function fonts() {
+  gulp.src(path.source.fonts + '*')
     .pipe(gulp.dest(path.build.fonts));
-});
+}
 
-gulp.task('lib', ['clean'], function() {
-  return gulp.src(path.source.lib + '**/*')
+function lib() {
+  gulp.src(path.source.lib + '**/*')
     .pipe(gulp.dest(path.build.lib));
-});
+}
 
-gulp.task('sprite', ['clean'], function() {
+function sprite() {
   var sprite =
     gulp.src(path.source.sprites + '*.png')
       .pipe(spritesmith(cfg.spritesmith));
   sprite.img
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images));
-  return sprite.css
+  sprite.css
     .pipe(csso())
     .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload());
-});
+}
 
-gulp.task('images', ['clean'], function() {
-  return gulp.src(path.source.images + '*')
+function images() {
+  gulp.src(path.source.images + '*')
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images))
     .pipe(connect.reload());
-});
+}
 
-gulp.task('css', ['clean'], function() {
+function css() {
   var files = gulp.src([
     path.source.css + '*.pcss',
     path.source.blocks + '**/*.pcss',
@@ -133,7 +133,7 @@ gulp.task('css', ['clean'], function() {
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css));
-  return files
+  files
     .pipe(sourcemaps.init())
     .pipe(postcss(cfg.postcss))
     .pipe(concat('app.min.css'))
@@ -141,15 +141,15 @@ gulp.task('css', ['clean'], function() {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload());
-});
+}
 
-gulp.task('css:base64', function() {
+function cssBase64() {
   gulp.src(path.build.css + '*.css')
     .pipe(base64())
     .pipe(gulp.dest(path.build.css));
-});
+}
 
-gulp.task('js', ['clean'], function() {
+function js() {
   var files = gulp.src([
     path.source.js + '*.js',
     path.source.blocks + '**/*.js'
@@ -159,32 +159,29 @@ gulp.task('js', ['clean'], function() {
     .pipe(concat('app.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js));
-  return files
+  files
     .pipe(sourcemaps.init())
     .pipe(concat('app.min.js'))
     .pipe(uglify())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js))
     .pipe(connect.reload());
-j});
+}
 
-gulp.task('templates', ['clean'], function() {
-  return gulp.src(path.source.templates + '*.jade')
+function templates() {
+  gulp.src(path.source.templates + '*.jade')
     .pipe(jade(cfg.jade))
     .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload());
-});
+}
 
-gulp.task('htmlmin', ['templates'], function() {
+function htmlMin() {
   gulp.src(path.build.root + '*.html')
     .pipe(htmlmin(cfg.htmlmin))
     .pipe(gulp.dest(path.build.root));
-});
+}
 
-gulp.task('selectorsmin', [
-  'templates',
-  'css'
-], function() {
+function selectorsMin() {
   gulp.src(path.build.root + '*.html')
     .pipe(selectors.run())
     .pipe(gulp.dest(path.build.root));
@@ -198,27 +195,13 @@ gulp.task('selectorsmin', [
     .pipe(gulp.dest(path.build.css));
   gulp.src(path.build.css + '*.map', {read: false})
     .pipe(rimraf());
-});
+}
 
-gulp.task('server', [
-  'fonts',
-  'lib',
-  'sprite',
-  'css',
-  'js',
-  'templates'
-], function() {
+function server() {
   connect.server(cfg.connect);
-});
+}
 
-gulp.task('watch', [
-  'fonts',
-  'lib',
-  'sprite',
-  'css',
-  'js',
-  'templates'
-], function() {
+function watchFiles() {
   watch(path.source.sprites + '*', function() {
     gulp.start('sprite');
   });
@@ -243,10 +226,22 @@ gulp.task('watch', [
   ], function() {
     gulp.start('templates');
   });
-});
+}
 
+gulp.task('clean', clean);
+gulp.task('fonts', fonts);
+gulp.task('lib', lib);
+gulp.task('sprite', sprite);
+gulp.task('images', images);
+gulp.task('css', css);
+gulp.task('css:base64', cssBase64);
+gulp.task('js', js);
+gulp.task('templates', templates);
+gulp.task('htmlmin', htmlMin);
+gulp.task('selectorsmin', selectorsMin);
+gulp.task('server', server);
+gulp.task('watch', watchFiles);
 gulp.task('build', [
-  'clean',
   'fonts',
   'lib',
   'sprite',
@@ -255,15 +250,7 @@ gulp.task('build', [
   'js',
   'templates'
 ]);
-
 gulp.task('build:min', [
-  'build',
   'htmlmin',
   'selectorsmin'
-]);
-
-gulp.task('default', [
-  'build',
-  'server',
-  'watch'
 ]);
