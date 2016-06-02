@@ -254,3 +254,4 @@ gulp.task('build:min', [
   'htmlmin',
   'selectorsmin'
 ]);
+gulp.task('default', ['watch', 'server']);
