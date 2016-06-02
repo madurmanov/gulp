@@ -13,6 +13,7 @@ var gulp          = require('gulp'),
     htmlmin       = require('gulp-htmlmin'),
     selectors     = require('gulp-selectors'),
     deletelines   = require('gulp-delete-lines'),
+    base64        = require('gulp-base64'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -140,6 +141,12 @@ gulp.task('css', ['clean'], function() {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
     .pipe(connect.reload());
+});
+
+gulp.task('css:base64', function() {
+  gulp.src(path.build.css + '*.css')
+    .pipe(base64())
+    .pipe(gulp.dest(path.build.css));
 });
 
 gulp.task('js', ['clean'], function() {
