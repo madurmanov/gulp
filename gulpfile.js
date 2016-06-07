@@ -124,8 +124,7 @@ function images() {
 function css() {
   var files = gulp.src([
     path.source.css + '*.pcss',
-    path.source.blocks + '**/*.pcss',
-    path.source.css + '*.css'
+    path.source.blocks + '**/*.pcss'
   ]);
   files
     .pipe(sourcemaps.init())
