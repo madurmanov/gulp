@@ -14,6 +14,10 @@ var gulp          = require('gulp'),
     selectors     = require('gulp-selectors'),
     deletelines   = require('gulp-delete-lines'),
     base64        = require('gulp-base64'),
+    svgstore      = require('gulp-svgstore'),
+    svgmin        = require('gulp-svgmin'),
+    inject        = require('gulp-inject'),
+    rename        = require('gulp-rename'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -28,6 +32,7 @@ path.images     = 'images/';
 path.js         = 'js/';
 path.lib        = 'lib/'
 path.sprites    = 'sprites/';
+path.svg        = 'svg/';
 path.templates  = 'templates/';
 
 path.source           = {};
@@ -39,6 +44,7 @@ path.source.images    = path.source.root + path.images;
 path.source.js        = path.source.root + path.js;
 path.source.lib       = path.source.root + path.lib;
 path.source.sprites   = path.source.root + path.sprites;
+path.source.svg       = path.source.root + path.svg;
 path.source.templates = path.source.root + path.templates;
 
 path.build        = {};
@@ -59,6 +65,19 @@ var cfg = {
     imgOpts: {
       format: 'png',
       quality: 100
+    }
+  },
+  svg: {
+    min: {
+      cleanupIDs: {
+        minify: true
+      }
+    },
+    rename: {
+      prefix: 'svgicon-'
+    },
+    store: {
+      inlineSvg: true
     }
   },
   jade: {
@@ -119,6 +138,21 @@ function images() {
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images))
     .pipe(connect.reload());
+}
+
+function svg() {
+  var svgs = gulp.src(path.source.svg + '*.svg')
+    .pipe(svgmin(function(file) {
+      return { plugins: [cfg.svg.min] };
+    }))
+    .pipe(rename(cfg.svg.rename))
+    .pipe(svgstore(cfg.svg.store));
+  function fileContents(filePath, file) {
+    return file.contents.toString();
+  }
+  gulp.src(path.build.root + '*.html')
+    .pipe(inject(svgs, { transform: fileContents }))
+    .pipe(gulp.dest(path.build.root));
 }
 
 function css() {
@@ -232,6 +266,7 @@ gulp.task('fonts', fonts);
 gulp.task('lib', lib);
 gulp.task('sprite', sprite);
 gulp.task('images', images);
+gulp.task('svg', svg);
 gulp.task('css', css);
 gulp.task('css:base64', cssBase64);
 gulp.task('js', js);
