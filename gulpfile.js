@@ -223,7 +223,7 @@ function templates() {
 }
 
 function htmlMin() {
-  gulp.src(path.build.root + '*.html')
+  return gulp.src(path.build.root + '*.html')
     .pipe(htmlmin(cfg.htmlmin))
     .pipe(gulp.dest(path.build.root));
 }
@@ -286,7 +286,7 @@ gulp.task('css:base64', cssBase64);
 gulp.task('js', js);
 gulp.task('templates', templates);
 gulp.task('htmlmin', htmlMin);
-gulp.task('selectorsmin', selectorsMin);
+gulp.task('selectorsmin', ['htmlmin'], selectorsMin);
 gulp.task('server', server);
 gulp.task('watch', watchFiles);
 gulp.task('build', [
