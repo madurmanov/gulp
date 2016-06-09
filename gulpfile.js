@@ -216,7 +216,7 @@ function js() {
 }
 
 function templates() {
-  gulp.src(path.source.templates + '*.jade')
+  return gulp.src(path.source.templates + '*.jade')
     .pipe(jade(cfg.jade))
     .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload());
@@ -280,7 +280,7 @@ gulp.task('fonts', fonts);
 gulp.task('lib', lib);
 gulp.task('sprite', sprite);
 gulp.task('images', images);
-gulp.task('svg', svg);
+gulp.task('svg', ['templates'], svg);
 gulp.task('css', css);
 gulp.task('css:base64', cssBase64);
 gulp.task('js', js);
@@ -294,6 +294,7 @@ gulp.task('build', [
   'lib',
   'sprite',
   'images',
+  'svg',
   'css',
   'js',
   'templates'
