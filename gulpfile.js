@@ -18,6 +18,7 @@ var gulp          = require('gulp'),
     svgmin        = require('gulp-svgmin'),
     inject        = require('gulp-inject'),
     rename        = require('gulp-rename'),
+    bower         = require('gulp-main-bower-files'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -102,7 +103,15 @@ var cfg = {
     autoprefixer({
       browsers: ['> 1%', 'last 4 versions', 'ie >= 9']
     })
-  ]
+  ],
+  bower: {
+    json: './bower.json',
+    files: {
+      jquery: {
+        main: './dist/jquery.min.js'
+      }
+    }
+  }
 };
 
 function clean() {
@@ -117,6 +126,11 @@ function fonts() {
 
 function lib() {
   gulp.src(path.source.lib + '**/*')
+    .pipe(gulp.dest(path.build.lib));
+  gulp.src(cfg.bower.json)
+    .pipe(bower({
+      overrides: cfg.bower.files
+    }))
     .pipe(gulp.dest(path.build.lib));
 }
 
