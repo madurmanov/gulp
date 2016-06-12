@@ -19,6 +19,7 @@ var gulp          = require('gulp'),
     inject        = require('gulp-inject'),
     rename        = require('gulp-rename'),
     bower         = require('gulp-main-bower-files'),
+    replace       = require('gulp-replace'),
     autoprefixer  = require('autoprefixer'),
     nested        = require('postcss-nested'),
     simplevars    = require('postcss-simple-vars'),
@@ -79,7 +80,9 @@ var cfg = {
     },
     store: {
       inlineSvg: true
-    }
+    },
+    search: /<i data-svgicon="(.*)"><\/i>/g,
+    replace: '<svg class="svgicon"><use xlink:href="#svgicon-$1"></svg>'
   },
   jade: {
     pretty: true
@@ -165,6 +168,7 @@ function svg() {
     return file.contents.toString();
   }
   gulp.src(path.build.root + '*.html')
+    .pipe(replace(cfg.svg.search, cfg.svg.replace))
     .pipe(inject(svgs, { transform: fileContents }))
     .pipe(gulp.dest(path.build.root));
 }
