@@ -123,7 +123,7 @@ function clean() {
 }
 
 function fonts() {
-  gulp.src(path.source.fonts + '*')
+  gulp.src(path.source.fonts + '**/*')
     .pipe(gulp.dest(path.build.fonts));
 }
 
