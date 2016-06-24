@@ -4,9 +4,6 @@
   "description": "",
   "main": "gulpfile.js",
   "scripts": {
-    "build": "gulp clean && gulp build",
-    "build:min": "gulp clean && gulp build && gulp build:min",
-    "start": "gulp clean && gulp build && gulp default"
   },
   "repository": {
     "type": "git",

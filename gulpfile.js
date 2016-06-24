@@ -49,20 +49,28 @@ path.source.sprites   = path.source.root + path.sprites;
 path.source.svg       = path.source.root + path.svg;
 path.source.templates = path.source.root + path.templates;
 
-path.build        = {};
-path.build.root   = './build/';
-path.build.css    = path.build.root + path.css;
-path.build.fonts  = path.build.root + path.fonts;
-path.build.images = path.build.root + path.images;
-path.build.js     = path.build.root + path.js;
-path.build.lib    = path.build.root + path.lib;
+path.build          = {};
+path.build.root     = './build/';
+path.build.css      = path.build.root + path.css;
+path.build.fonts    = path.build.root + path.fonts;
+path.build.images   = path.build.root + path.images;
+path.build.js       = path.build.root + path.js;
+path.build.lib      = path.build.root + path.lib;
+path.build.sprites  = path.build.root + path.sprites;
 
 var config = {
+  css: {
+    fileName: 'app',
+    fileExt: 'css'
+  },
+  js: {
+    fileName: 'app',
+    fileExt: 'js'
+  },
   spritesmith: {
-    imgName: 'sprite.png',
-    imgPath: path.build.images + 'sprite.png',
-    cssName: 'sprite.min.css',
-    cssTemplate: path.source.css + 'sprite.template',
+    imgName: 'sprites.png',
+    cssName: 'sprites.min.css',
+    cssTemplate: path.source.css + 'sprites.template',
     padding: 10,
     imgOpts: {
       format: 'png',
@@ -112,9 +120,29 @@ var config = {
   }
 };
 
-function clean() {
-  gulp.src(path.build.root, {read: false})
+function clean(path) {
+  return gulp.src(path, {read: false})
     .pipe(rimraf({force: true}));
+}
+
+function cleanBuild() {
+  return clean(path.build.root);
+}
+
+function cleanFonts() {
+  return clean(path.build.fonts);
+}
+
+function cleanLib() {
+  return clean(path.build.lib);
+}
+
+function cleanImages() {
+  return clean(path.build.images);
+}
+
+function cleanTemplates() {
+  return clean(path.build.root + '*.html');
 }
 
 function fonts() {
@@ -131,15 +159,15 @@ function lib() {
 }
 
 function sprite() {
-  var sprite =
+  var sprites =
     gulp.src(path.source.sprites + '*.png')
       .pipe(spritesmith(config.spritesmith));
-  sprite.img
+  sprites.img
     .pipe(imagemin())
-    .pipe(gulp.dest(path.build.images));
-  sprite.css
+    .pipe(gulp.dest(path.build.sprites));
+  sprites.css
     .pipe(csso())
-    .pipe(gulp.dest(path.build.css))
+    .pipe(gulp.dest(path.build.sprites))
     .pipe(connect.reload());
 }
 
@@ -174,13 +202,13 @@ function css() {
   files
     .pipe(sourcemaps.init())
     .pipe(postcss(config.postcss))
-    .pipe(concat('app.css'))
+    .pipe(concat(config.css.fileName + '.' + config.css.fileExt))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css));
   files
     .pipe(sourcemaps.init())
     .pipe(postcss(config.postcss))
-    .pipe(concat('app.min.css'))
+    .pipe(concat(config.css.fileName + '.min.' + config.css.fileExt))
     .pipe(csso())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
@@ -200,12 +228,12 @@ function js() {
   ]);
   files
     .pipe(sourcemaps.init())
-    .pipe(concat('app.js'))
+    .pipe(concat(config.js.fileName + '.' + config.js.fileExt))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js));
   files
     .pipe(sourcemaps.init())
-    .pipe(concat('app.min.js'))
+    .pipe(concat(config.js.fileName + '.min.' + config.js.fileExt))
     .pipe(uglify())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js))
@@ -247,22 +275,23 @@ function server() {
 
 function watchFiles() {
   watch(path.source.fonts + '**/*', function() {
-    gulp.start('fonts')
+    gulp.start('fonts:clean')
   });
   watch([
     config.bower.json,
     path.source.lib + '**/*'
   ], function() {
-    gulp.start('lib')
+    clean(path.build.lib);
+    gulp.start('lib:clean')
   });
   watch(path.source.sprites + '*.png', function() {
-    gulp.start('sprite');
+    gulp.start('sprites');
   });
   watch(path.source.images + '**/*', function() {
-    gulp.start('images');
+    gulp.start('images:clean');
   });
   watch(path.source.svg + '*.svg', function() {
-    gulp.start('svg');
+    gulp.start('svg:clean');
   });
   watch([
     path.source.css + '*.pcss',
@@ -280,20 +309,33 @@ function watchFiles() {
     path.source.blocks + '**/*.jade',
     path.source.templates + '**/*.jade'
   ], function() {
-    gulp.start('templates');
+    gulp.start('templates:clean');
   });
 }
 
-gulp.task('clean', clean);
+function build() {
+  gulp.start('build');
+}
+
+gulp.task('clean', cleanBuild);
+gulp.task('clean:fonts', cleanFonts);
+gulp.task('clean:lib', cleanLib);
+gulp.task('clean:images', cleanImages);
+gulp.task('clean:templates', cleanTemplates);
 gulp.task('fonts', fonts);
+gulp.task('fonts:clean', ['clean:fonts'], fonts);
 gulp.task('lib', lib);
-gulp.task('sprite', sprite);
+gulp.task('lib:clean', ['clean:lib'], lib);
+gulp.task('sprites', sprite);
 gulp.task('images', images);
+gulp.task('images:clean', ['clean:images'], images);
 gulp.task('svg', ['templates'], svg);
+gulp.task('svg:clean', ['templates:clean'], svg);
 gulp.task('css', css);
 gulp.task('css:base64', cssBase64);
 gulp.task('js', js);
 gulp.task('templates', templates);
+gulp.task('templates:clean', ['clean:templates'], templates);
 gulp.task('htmlmin', htmlMin);
 gulp.task('selectorsmin', ['htmlmin'], selectorsMin);
 gulp.task('server', server);
@@ -301,13 +343,14 @@ gulp.task('watch', watchFiles);
 gulp.task('build', [
   'fonts',
   'lib',
-  'sprite',
+  'sprites',
   'images',
   'svg',
   'css',
   'js',
   'templates'
 ]);
+gulp.task('build:clean', ['clean'], build);
 gulp.task('build:min', [
   'htmlmin',
   'selectorsmin'
