@@ -259,11 +259,14 @@ function watchFiles() {
   watch(path.source.lib + '**/*', function() {
     gulp.start('lib')
   });
-  watch(path.source.sprites + '*', function() {
+  watch(path.source.sprites + '*.png', function() {
     gulp.start('sprite');
   });
   watch(path.source.images + '**/*', function() {
     gulp.start('images');
+  });
+  watch(path.source.svg + '*.svg', function() {
+    gulp.start('svg');
   });
   watch([
     path.source.css + '*.pcss',
