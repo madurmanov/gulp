@@ -108,12 +108,7 @@ var config = {
     })
   ],
   bower: {
-    json: './bower.json',
-    files: {
-      jquery: {
-        main: './dist/jquery.min.js'
-      }
-    }
+    json: './bower.json'
   }
 };
 
@@ -131,9 +126,7 @@ function lib() {
   gulp.src(path.source.lib + '**/*')
     .pipe(gulp.dest(path.build.lib));
   gulp.src(config.bower.json)
-    .pipe(bower({
-      overrides: config.bower.files
-    }))
+    .pipe(bower())
     .pipe(gulp.dest(path.build.lib));
 }
 
@@ -256,7 +249,10 @@ function watchFiles() {
   watch(path.source.fonts + '**/*', function() {
     gulp.start('fonts')
   });
-  watch(path.source.lib + '**/*', function() {
+  watch([
+    config.bower.json,
+    path.source.lib + '**/*'
+  ], function() {
     gulp.start('lib')
   });
   watch(path.source.sprites + '*.png', function() {
