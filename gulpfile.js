@@ -57,7 +57,7 @@ path.build.images = path.build.root + path.images;
 path.build.js     = path.build.root + path.js;
 path.build.lib    = path.build.root + path.lib;
 
-var cfg = {
+var config = {
   spritesmith: {
     imgName: 'sprite.png',
     imgPath: path.build.images + 'sprite.png',
@@ -90,7 +90,7 @@ var cfg = {
   htmlmin: {
     collapseWhitespace: true
   },
-  connect: {
+  server: {
     port: 5000,
     root: path.build.root,
     livereload: true
@@ -130,9 +130,9 @@ function fonts() {
 function lib() {
   gulp.src(path.source.lib + '**/*')
     .pipe(gulp.dest(path.build.lib));
-  gulp.src(cfg.bower.json)
+  gulp.src(config.bower.json)
     .pipe(bower({
-      overrides: cfg.bower.files
+      overrides: config.bower.files
     }))
     .pipe(gulp.dest(path.build.lib));
 }
@@ -140,7 +140,7 @@ function lib() {
 function sprite() {
   var sprite =
     gulp.src(path.source.sprites + '*.png')
-      .pipe(spritesmith(cfg.spritesmith));
+      .pipe(spritesmith(config.spritesmith));
   sprite.img
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images));
@@ -151,7 +151,7 @@ function sprite() {
 }
 
 function images() {
-  gulp.src(path.source.images + '*')
+  gulp.src(path.source.images + '**/*')
     .pipe(imagemin())
     .pipe(gulp.dest(path.build.images))
     .pipe(connect.reload());
@@ -160,15 +160,15 @@ function images() {
 function svg() {
   var svgs = gulp.src(path.source.svg + '*.svg')
     .pipe(svgmin(function(file) {
-      return { plugins: [cfg.svg.min] };
+      return { plugins: [config.svg.min] };
     }))
-    .pipe(rename(cfg.svg.rename))
-    .pipe(svgstore(cfg.svg.store));
+    .pipe(rename(config.svg.rename))
+    .pipe(svgstore(config.svg.store));
   function fileContents(filePath, file) {
     return file.contents.toString();
   }
   gulp.src(path.build.root + '*.html')
-    .pipe(replace(cfg.svg.search, cfg.svg.replace))
+    .pipe(replace(config.svg.search, config.svg.replace))
     .pipe(inject(svgs, { transform: fileContents }))
     .pipe(gulp.dest(path.build.root));
 }
@@ -180,13 +180,13 @@ function css() {
   ]);
   files
     .pipe(sourcemaps.init())
-    .pipe(postcss(cfg.postcss))
+    .pipe(postcss(config.postcss))
     .pipe(concat('app.css'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css));
   files
     .pipe(sourcemaps.init())
-    .pipe(postcss(cfg.postcss))
+    .pipe(postcss(config.postcss))
     .pipe(concat('app.min.css'))
     .pipe(csso())
     .pipe(sourcemaps.write('.'))
@@ -221,14 +221,14 @@ function js() {
 
 function templates() {
   return gulp.src(path.source.templates + '*.jade')
-    .pipe(jade(cfg.jade))
+    .pipe(jade(config.jade))
     .pipe(gulp.dest(path.build.root))
     .pipe(connect.reload());
 }
 
 function htmlMin() {
   return gulp.src(path.build.root + '*.html')
-    .pipe(htmlmin(cfg.htmlmin))
+    .pipe(htmlmin(config.htmlmin))
     .pipe(gulp.dest(path.build.root));
 }
 
@@ -249,14 +249,20 @@ function selectorsMin() {
 }
 
 function server() {
-  connect.server(cfg.connect);
+  connect.server(config.server);
 }
 
 function watchFiles() {
+  watch(path.source.fonts + '**/*', function() {
+    gulp.start('fonts')
+  });
+  watch(path.source.lib + '**/*', function() {
+    gulp.start('lib')
+  });
   watch(path.source.sprites + '*', function() {
     gulp.start('sprite');
   });
-  watch(path.source.images + '*', function() {
+  watch(path.source.images + '**/*', function() {
     gulp.start('images');
   });
   watch([
@@ -273,7 +279,7 @@ function watchFiles() {
   });
   watch([
     path.source.blocks + '**/*.jade',
-    path.source.templates + '*.jade'
+    path.source.templates + '**/*.jade'
   ], function() {
     gulp.start('templates');
   });
