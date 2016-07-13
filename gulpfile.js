@@ -281,7 +281,6 @@ function watchFiles() {
     config.bower.json,
     path.source.lib + '**/*'
   ], function() {
-    clean(path.build.lib);
     gulp.start('lib:clean')
   });
   watch(path.source.sprites + '*.png', function() {
