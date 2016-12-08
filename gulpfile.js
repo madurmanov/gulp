@@ -27,15 +27,15 @@ var gulp          = require('gulp'),
 
 var path = {};
 
-path.blocks     = 'blocks/';
-path.css        = 'css/';
-path.fonts      = 'fonts/'
-path.images     = 'images/';
-path.js         = 'js/';
-path.lib        = 'lib/'
-path.sprites    = 'sprites/';
-path.svg        = 'svg/';
-path.templates  = 'templates/';
+path.blocks           = 'blocks/';
+path.css              = 'css/';
+path.fonts            = 'fonts/'
+path.images           = 'images/';
+path.js               = 'js/';
+path.lib              = 'lib/'
+path.sprites          = 'sprites/';
+path.svg              = 'svg/';
+path.templates        = 'templates/';
 
 path.source           = {};
 path.source.root      = './source/';
@@ -49,14 +49,14 @@ path.source.sprites   = path.source.root + path.sprites;
 path.source.svg       = path.source.root + path.svg;
 path.source.templates = path.source.root + path.templates;
 
-path.build          = {};
-path.build.root     = './build/';
-path.build.css      = path.build.root + path.css;
-path.build.fonts    = path.build.root + path.fonts;
-path.build.images   = path.build.root + path.images;
-path.build.js       = path.build.root + path.js;
-path.build.lib      = path.build.root + path.lib;
-path.build.sprites  = path.build.root + path.sprites;
+path.build            = {};
+path.build.root       = './build/';
+path.build.css        = path.build.root + path.css;
+path.build.fonts      = path.build.root + path.fonts;
+path.build.images     = path.build.root + path.images;
+path.build.js         = path.build.root + path.js;
+path.build.lib        = path.build.root + path.lib;
+path.build.sprites    = path.build.root + path.sprites;
 
 var config = {
   css: {
@@ -78,11 +78,16 @@ var config = {
     }
   },
   svg: {
-    min: {
-      cleanupIDs: {
-        minify: true
+    min: [
+      {
+	cleanupIDs: {
+	  minify: true
+	}
+      },
+      {
+        removeTitle: true
       }
-    },
+    ],
     rename: {
       prefix: 'svgicon-'
     },
@@ -181,7 +186,7 @@ function images() {
 function svg() {
   var svgs = gulp.src(path.source.svg + '*.svg')
     .pipe(svgmin(function(file) {
-      return { plugins: [config.svg.min] };
+      return { plugins: config.svg.min };
     }))
     .pipe(rename(config.svg.rename))
     .pipe(svgstore(config.svg.store));
