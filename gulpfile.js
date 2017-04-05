@@ -1,41 +1,38 @@
-var gulp          = require('gulp'),
-    watch         = require('gulp-watch'),
-    imagemin      = require('gulp-imagemin'),
-    spritesmith   = require('gulp.spritesmith'),
-    csso          = require('gulp-csso'),
-    uglify        = require('gulp-uglify'),
-    jade          = require('gulp-jade'),
-    concat        = require('gulp-concat'),
-    connect       = require('gulp-connect'),
-    sourcemaps    = require('gulp-sourcemaps'),
-    postcss       = require('gulp-postcss'),
-    rimraf        = require('gulp-rimraf'),
-    htmlmin       = require('gulp-htmlmin'),
-    selectors     = require('gulp-selectors'),
-    deletelines   = require('gulp-delete-lines'),
-    base64        = require('gulp-base64'),
-    svgstore      = require('gulp-svgstore'),
-    svgmin        = require('gulp-svgmin'),
-    inject        = require('gulp-inject'),
-    rename        = require('gulp-rename'),
-    bower         = require('gulp-main-bower-files'),
-    replace       = require('gulp-replace'),
-    autoprefixer  = require('autoprefixer'),
-    nested        = require('postcss-nested'),
-    simplevars    = require('postcss-simple-vars'),
-    mixins        = require('postcss-mixins');
+var gulp         = require('gulp'),
+    watch        = require('gulp-watch'),
+    imagemin     = require('gulp-imagemin'),
+    spritesmith  = require('gulp.spritesmith'),
+    csso         = require('gulp-csso'),
+    uglify       = require('gulp-uglify'),
+    jade         = require('gulp-jade'),
+    concat       = require('gulp-concat'),
+    connect      = require('gulp-connect'),
+    sourcemaps   = require('gulp-sourcemaps'),
+    postcss      = require('gulp-postcss'),
+    rimraf       = require('gulp-rimraf'),
+    htmlmin      = require('gulp-htmlmin'),
+    selectors    = require('gulp-selectors'),
+    deletelines  = require('gulp-delete-lines'),
+    base64       = require('gulp-base64'),
+    svgstore     = require('gulp-svgstore'),
+    svgmin       = require('gulp-svgmin'),
+    inject       = require('gulp-inject'),
+    rename       = require('gulp-rename'),
+    replace      = require('gulp-replace'),
+    mainnpmfiles = require('gulp-main-npm-files'),
+    cssnext      = require('postcss-cssnext');
 
 var path = {};
 
-path.blocks           = 'blocks/';
-path.css              = 'css/';
-path.fonts            = 'fonts/'
-path.images           = 'images/';
-path.js               = 'js/';
-path.lib              = 'lib/'
-path.sprites          = 'sprites/';
-path.svg              = 'svg/';
-path.templates        = 'templates/';
+path.blocks    = 'blocks/';
+path.css       = 'css/';
+path.fonts     = 'fonts/'
+path.images    = 'images/';
+path.js        = 'js/';
+path.lib       = 'lib/'
+path.sprites   = 'sprites/';
+path.svg       = 'svg/';
+path.templates = 'templates/';
 
 path.source           = {};
 path.source.root      = './source/';
@@ -49,23 +46,23 @@ path.source.sprites   = path.source.root + path.sprites;
 path.source.svg       = path.source.root + path.svg;
 path.source.templates = path.source.root + path.templates;
 
-path.build            = {};
-path.build.root       = './build/';
-path.build.css        = path.build.root + path.css;
-path.build.fonts      = path.build.root + path.fonts;
-path.build.images     = path.build.root + path.images;
-path.build.js         = path.build.root + path.js;
-path.build.lib        = path.build.root + path.lib;
-path.build.sprites    = path.build.root + path.sprites;
+path.build         = {};
+path.build.root    = './build/';
+path.build.css     = path.build.root + path.css;
+path.build.fonts   = path.build.root + path.fonts;
+path.build.images  = path.build.root + path.images;
+path.build.js      = path.build.root + path.js;
+path.build.lib     = path.build.root + path.lib;
+path.build.sprites = path.build.root + path.sprites;
 
 var config = {
   css: {
-    fileName: 'app',
-    fileExt: 'css'
+    name: 'app',
+    ext: 'css',
   },
   js: {
-    fileName: 'app',
-    fileExt: 'js'
+    name: 'app',
+    ext: 'js',
   },
   spritesmith: {
     imgName: 'sprites.png',
@@ -74,56 +71,45 @@ var config = {
     padding: 10,
     imgOpts: {
       format: 'png',
-      quality: 100
-    }
+      quality: 100,
+    },
   },
   svg: {
     min: [
       {
-	cleanupIDs: {
-	  minify: true
-	}
+        cleanupIDs: {
+          minify: true,
+        },
       },
       {
-        removeTitle: true
-      }
+        removeTitle: true,
+      },
     ],
     rename: {
-      prefix: 'svgicon-'
+      prefix: 'svgicon-',
     },
     store: {
-      inlineSvg: true
+      inlineSvg: true,
     },
     search: /<i data-svgicon="(.*)"><\/i>/g,
-    replace: '<svg class="svgicon"><use xlink:href="#svgicon-$1"></svg>'
+    replace: '<svg class="svgicon"><use xlink:href="#svgicon-$1"></svg>',
   },
   jade: {
-    pretty: true
+    pretty: true,
   },
   htmlmin: {
-    collapseWhitespace: true
+    collapseWhitespace: true,
   },
   server: {
     port: 5000,
     root: path.build.root,
-    livereload: true
+    livereload: true,
   },
   postcss: [
-    mixins({
-      mixinsDir: path.source.css + 'mixins'
-    }),
-    nested,
-    simplevars({
-      variables: require(path.source.css + 'variables')
-    }),
-    autoprefixer({
-      browsers: ['> 1%', 'last 4 versions', 'ie >= 9']
-    })
+    cssnext(),
   ],
-  bower: {
-    json: './bower.json'
-  }
 };
+
 
 function clean(path) {
   return gulp.src(path, {read: false})
@@ -158,12 +144,14 @@ function fonts() {
 function lib() {
   gulp.src(path.source.lib + '**/*')
     .pipe(gulp.dest(path.build.lib));
-  gulp.src(config.bower.json)
-    .pipe(bower())
-    .pipe(gulp.dest(path.build.lib));
 }
 
-function sprite() {
+function npmfiles() {
+  gulp.src(mainnpmfiles(), { base: './' })
+    .pipe(gulp.dest(path.build.root));
+}
+
+function sprites() {
   var sprites =
     gulp.src(path.source.sprites + '*.png')
       .pipe(spritesmith(config.spritesmith));
@@ -207,13 +195,13 @@ function css() {
   files
     .pipe(sourcemaps.init())
     .pipe(postcss(config.postcss))
-    .pipe(concat(config.css.fileName + '.' + config.css.fileExt))
+    .pipe(concat(config.css.name + '.' + config.css.ext))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css));
   files
     .pipe(sourcemaps.init())
     .pipe(postcss(config.postcss))
-    .pipe(concat(config.css.fileName + '.min.' + config.css.fileExt))
+    .pipe(concat(config.css.name + '.min.' + config.css.ext))
     .pipe(csso())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.css))
@@ -233,12 +221,12 @@ function js() {
   ]);
   files
     .pipe(sourcemaps.init())
-    .pipe(concat(config.js.fileName + '.' + config.js.fileExt))
+    .pipe(concat(config.js.name + '.' + config.js.ext))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js));
   files
     .pipe(sourcemaps.init())
-    .pipe(concat(config.js.fileName + '.min.' + config.js.fileExt))
+    .pipe(concat(config.js.name + '.min.' + config.js.ext))
     .pipe(uglify())
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.build.js))
@@ -274,18 +262,12 @@ function selectorsMin() {
     .pipe(rimraf());
 }
 
-function server() {
-  connect.server(config.server);
-}
 
 function watchFiles() {
   watch(path.source.fonts + '**/*', function() {
     gulp.start('fonts:clean')
   });
-  watch([
-    config.bower.json,
-    path.source.lib + '**/*'
-  ], function() {
+  watch(path.source.lib + '**/*', function() {
     gulp.start('lib:clean')
   });
   watch(path.source.sprites + '*.png', function() {
@@ -321,6 +303,10 @@ function build() {
   gulp.start('build');
 }
 
+function server() {
+  connect.server(config.server);
+}
+
 gulp.task('clean', cleanBuild);
 gulp.task('clean:fonts', cleanFonts);
 gulp.task('clean:lib', cleanLib);
@@ -330,7 +316,8 @@ gulp.task('fonts', fonts);
 gulp.task('fonts:clean', ['clean:fonts'], fonts);
 gulp.task('lib', lib);
 gulp.task('lib:clean', ['clean:lib'], lib);
-gulp.task('sprites', sprite);
+gulp.task('npmfiles', npmfiles);
+gulp.task('sprites', sprites);
 gulp.task('images', images);
 gulp.task('images:clean', ['clean:images'], images);
 gulp.task('svg', ['templates'], svg);
@@ -342,21 +329,22 @@ gulp.task('templates', templates);
 gulp.task('templates:clean', ['clean:templates'], templates);
 gulp.task('htmlmin', htmlMin);
 gulp.task('selectorsmin', ['htmlmin'], selectorsMin);
-gulp.task('server', server);
 gulp.task('watch', watchFiles);
 gulp.task('build', [
   'fonts',
   'lib',
+  'npmfiles',
   'sprites',
   'images',
   'svg',
   'css',
   'js',
-  'templates'
+  'templates',
 ]);
 gulp.task('build:clean', ['clean'], build);
 gulp.task('build:min', [
   'htmlmin',
-  'selectorsmin'
+  'selectorsmin',
 ]);
+gulp.task('server', server);
 gulp.task('default', ['watch', 'server']);
