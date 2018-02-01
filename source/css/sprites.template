@@ -1,7 +1,7 @@
 .icon {
   display: inline-block;
   vertical-align: top;
-  background-image: url(sprite.png);
+  background-image: url(sprites.png);
 }
 {{#sprites}}
 .icon-{{name}} {
