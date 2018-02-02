@@ -19,7 +19,7 @@ var gulp         = require('gulp'),
     inject       = require('gulp-inject'),
     rename       = require('gulp-rename'),
     replace      = require('gulp-replace'),
-    mainnpmfiles = require('gulp-main-npm-files'),
+    npmdist      = require('gulp-npm-dist'),
     cssnext      = require('postcss-cssnext');
 
 var path = {};
@@ -147,8 +147,8 @@ function lib() {
 }
 
 function npmfiles() {
-  gulp.src(mainnpmfiles(), { base: './' })
-    .pipe(gulp.dest(path.build.root));
+  gulp.src(npmdist(), { base: './node_modules' })
+    .pipe(gulp.dest(path.build.lib));
 }
 
 function sprites() {
