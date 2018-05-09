@@ -13,7 +13,6 @@ var gulp         = require('gulp'),
     htmlmin      = require('gulp-htmlmin'),
     selectors    = require('gulp-selectors'),
     deletelines  = require('gulp-delete-lines'),
-    base64       = require('gulp-base64'),
     svgstore     = require('gulp-svgstore'),
     svgmin       = require('gulp-svgmin'),
     inject       = require('gulp-inject'),
@@ -208,12 +207,6 @@ function css() {
     .pipe(connect.reload());
 }
 
-function cssBase64() {
-  gulp.src(path.build.css + '*.css')
-    .pipe(base64())
-    .pipe(gulp.dest(path.build.css));
-}
-
 function js() {
   var files = gulp.src([
     path.source.js + '*.js',
@@ -323,7 +316,6 @@ gulp.task('images:clean', ['clean:images'], images);
 gulp.task('svg', ['templates'], svg);
 gulp.task('svg:clean', ['templates:clean'], svg);
 gulp.task('css', css);
-gulp.task('css:base64', cssBase64);
 gulp.task('js', js);
 gulp.task('templates', templates);
 gulp.task('templates:clean', ['clean:templates'], templates);
