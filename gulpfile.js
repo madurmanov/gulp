@@ -10,8 +10,6 @@ var gulp         = require('gulp'),
     sourcemaps   = require('gulp-sourcemaps'),
     postcss      = require('gulp-postcss'),
     rimraf       = require('gulp-rimraf'),
-    htmlmin      = require('gulp-htmlmin'),
-    selectors    = require('gulp-selectors'),
     deletelines  = require('gulp-delete-lines'),
     svgstore     = require('gulp-svgstore'),
     svgmin       = require('gulp-svgmin'),
@@ -233,29 +231,6 @@ function templates() {
     .pipe(connect.reload());
 }
 
-function htmlMin() {
-  return gulp.src(path.build.root + '*.html')
-    .pipe(htmlmin(config.htmlmin))
-    .pipe(gulp.dest(path.build.root));
-}
-
-function selectorsMin() {
-  gulp.src(path.build.root + '*.html')
-    .pipe(selectors.run())
-    .pipe(gulp.dest(path.build.root));
-  gulp.src(path.build.css + '*.css')
-    .pipe(selectors.run())
-    .pipe(deletelines({
-      'filters': [
-        /\/\*#\ssourceMap/i
-      ]
-    }))
-    .pipe(gulp.dest(path.build.css));
-  gulp.src(path.build.css + '*.map', {read: false})
-    .pipe(rimraf());
-}
-
-
 function watchFiles() {
   watch(path.source.fonts + '**/*', function() {
     gulp.start('fonts:clean')
@@ -319,8 +294,6 @@ gulp.task('css', css);
 gulp.task('js', js);
 gulp.task('templates', templates);
 gulp.task('templates:clean', ['clean:templates'], templates);
-gulp.task('htmlmin', htmlMin);
-gulp.task('selectorsmin', ['htmlmin'], selectorsMin);
 gulp.task('watch', watchFiles);
 gulp.task('build', [
   'fonts',
@@ -334,9 +307,5 @@ gulp.task('build', [
   'templates',
 ]);
 gulp.task('build:clean', ['clean'], build);
-gulp.task('build:min', [
-  'htmlmin',
-  'selectorsmin',
-]);
 gulp.task('server', server);
 gulp.task('default', ['watch', 'server']);
